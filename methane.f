@@ -129,9 +129,21 @@
        ch4depthd = 0.5  
        !! Sita_ch4 = soil_ch4 / ch4depth      
        
-       Q10 = 2.5;
-       tempt = min(30.0, soiltemp)
-       pH = sol_ph(1,j)
+       Q10 = 2.5
+       
+       
+             
+      do lyr = 1, sol_nly(j)
+      
+      
+       if (lyr == 1) then
+	    sol_thick = sol_z(lyr,j)
+	else	
+	    sol_thick = sol_z(lyr,j) - sol_z(lyr-1,j)
+	end if
+      
+       tempt = min(30.0, sol_tmp(lyr,j))
+       pH = sol_ph(lyr,j)
         if(pH<pHmin .or. pH>pHmax) then 
             fpH = 0.
         else if (pH <= 7.0) then
@@ -142,7 +154,7 @@
         
        
         if(tempt<-5.0) then
-            ftemp = 0.0;
+            ftemp = 0.0
         else 
             ftemp = Q10**((tempt-30.0) / 10.0)
         end if    
@@ -154,13 +166,13 @@
         avDOC = total_doc_top
         fdoc = avDOC/(avDOC+pftp[ecotype].Kmch4pro)
         
-        wvwc = (sol_st(1,j)+ sol_st(2,j)+sol_wpmm(1,j)+ sol_wpmm(2,j))
-     &  /sol_z(2,j)  
+        wvwc = ((sol_st(lyr,j)+ sol_wpmm(lyr,j))
+     &  /sol_thick
         
-        wpot_sati = -10.*10.**(1.88-0.0131*sol_sand(1,j))
-        vsat = 0.489-0.00126*sol_sand(1,j)
+        wpot_sati = -10.*10.**(1.88-0.0131*sol_sand(lyr,j))
+        vsat = 0.489-0.00126*sol_sand(lyr,j)
         vfc = vsat*(-3.3e3/wpot_sati)**
-     &   (-1./(2.91+0.159*sol_clay(1,j)))
+     &   (-1./(2.91+0.159*sol_clay(lyr,j)))
         temp2 = (wvwc-vfc)/(vsat-vfc)
 
         if(wvwc < vfc) then
@@ -176,19 +188,19 @@
         fmoist_oxid = 1.0 - fmoist_prod;
         production = fmin(pftp[ecotype].CH4ProMaxRate * fdoc * ftemp 
      &     * fpH * fmoist_prod, avDOC);    !!(gC/m3 soil)    
+     
+      end do
       
    !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
       
       
       do lyr = 1, sol_nly(j)
       
-      
        if (lyr == 1) then
 	    sol_thick = sol_z(lyr,j)
 	else	
 	    sol_thick = sol_z(lyr,j) - sol_z(lyr-1,j)
 	end if
-      
       
          soildthmin = soildthmax
          soildthmax = soildthmax + sol_thick 
