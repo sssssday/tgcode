@@ -941,13 +941,13 @@
     end do
    !! methane production
    
-   
+    call methane
    
       cal_temp(10) = totalN
    
    
    
-    call methane()
+   !!all methane()
     !write (*,*) iyr,i, DeltaBMC
     !write (*,*) iyr,i, wdntl
     return

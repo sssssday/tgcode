@@ -239,6 +239,8 @@
         !! compute evapotranspiration
         call etpot
 !        if (pot_vol(j) < 1.e-6) call etact
+
+       
         call etact
 
         !! compute water table depth using climate drivers

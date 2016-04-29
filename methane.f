@@ -65,6 +65,9 @@
       real :: vsat 
       real :: vfc 
       
+      real :: PRMT_21, DK, X1, XX, V, X3
+      integer :: kk
+      real :: sut
       
 !!    ~ ~ ~ PURPOSE ~ ~ ~
 !!    this subroutine calculate methane production 
@@ -122,7 +125,7 @@
        oxidize_soil = 0.0            
        pHmax = 10.0 
        pHmin = 4.0 
-       maxsoilch4conc = atmCH4 * 12 / 22400 * 0.035       
+       maxsoilch4conc = atmCH4 * 12. / 22400. * 0.035       
        planttrans = 0.68                 
        exchange_soilair = 0.3           
 
@@ -133,7 +136,7 @@
        
        
              
-      do lyr = 1, sol_nly(j)
+      do lyr = 1, 2 !sol_nly(j)
       
       
        if (lyr == 1) then
@@ -151,7 +154,7 @@
         else  
             fpH = 1.02/(1+1000000 * exp(-2.5 * (14.0-pH)))
         endif
-        
+       fpH = 10.**(-0.2235*pH*pH + 2.7727*pH - 8.6)
        
         if(tempt<-5.0) then
             ftemp = 0.0
@@ -161,12 +164,32 @@
         
         fairt = Q10**((tmpav(j)-30.0) / 10.0)
         !! XXXXXXXXXXXXXXXXXXXXXX
-        total_doc = DOM.C()
+          PRMT_21 = 0.  !KOC FOR CARBON LOSS IN WATER AND SEDIMENT(500._1500.) KD = KOC * C
+          PRMT_21 = 1500.
+          sol_WOC(lyr,j) = sol_LSC(lyr,j)+sol_LMC(lyr,j)+sol_HPC(lyr,j)
+     &                      +sol_HSC(lyr,j)+sol_BMC(lyr,j) 
+          DK=.0001*PRMT_21*sol_WOC(lyr,j)
+          !X1=PO(LD1)-S15(LD1)
+          X1 = sol_por(lyr,j)*sol_thick-sol_wpmm(lyr,j) !mm
+          IF (X1 <= 0.) THEN
+            X1 = 0.01
+          END IF
+          XX=X1+DK
+          !V=QD+Y4
+          V = sol_st(lyr,j) !+ sol_wpmm(lyr,j)
+          X3=0.
+          IF(V>1.E-10)THEN
+              X3=sol_BMC(lyr,j)*(1.-EXP(-V/XX)) !loss of biomass C
+          END IF
+        
+        total_doc = X3/10. !From Kg/ha C ot g/m2 C !DOM.C()
+         if (lyr == 1)cal_temp(2) = 0.
+        cal_temp(2) =  cal_temp(2) + total_doc
         total_doc_top = total_doc * 0.8  
         avDOC = total_doc_top
-        fdoc = avDOC/(avDOC+pftp[ecotype].Kmch4pro)
+        fdoc = avDOC/(avDOC+ 1.)!! pftp[ecotype].Kmch4pro)
         
-        wvwc = ((sol_st(lyr,j)+ sol_wpmm(lyr,j))
+        wvwc = (sol_st(lyr,j)+ sol_wpmm(lyr,j))
      &  /sol_thick
         
         wpot_sati = -10.*10.**(1.88-0.0131*sol_sand(lyr,j))
@@ -185,12 +208,47 @@
                     fmoist_prod = temp2 * temp2 * 0.367879 * exp(temp2)
                 end if    
         end if
-        fmoist_oxid = 1.0 - fmoist_prod;
-        production = fmin(pftp[ecotype].CH4ProMaxRate * fdoc * ftemp 
-     &     * fpH * fmoist_prod, avDOC);    !!(gC/m3 soil)    
+       !!moist_prod = 1.
+       !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         	    kk =0 
+	          if (lyr == 1) then
+	            kk = 2
+	          else
+	            kk = lyr
+	          end if
+       
+       
+                     X1=sol_st(lyr,j)
+	          IF(X1<0.)THEN
+	              SUT=.1*(sol_st(kk,j) /sol_wpmm(lyr,j))**2
+	          ELSE
+	              SUT = .1 + .9 * Sqrt(sol_st(lyr,j) / sol_fc(lyr,j))
+              END IF             
+              sut = min(1., sut)
+              sut = max(.05, sut)
+       !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            
+         if (lyr == 1)production = 0.
+         
+        production = production + min(0.4            !!pftp[ecotype].CH4ProMaxRate 
+     &   * fdoc * ftemp* fpH * fmoist_prod, avDOC)
+     & * sol_thick/1000.    !!(gC/m3 soil)  
+        
+        cal_temp(3) =  fdoc 
+        cal_temp(4) =  ftemp
+        cal_temp(5) =  fmoist_prod
+        cal_temp(6) = precipday
+        cal_temp(7) = es_day
+        
+        
+        
+        
+        sol_BMC(lyr,j) = sol_BMC(lyr,j) - production*10. !remove produced CH4 from BMC pool
      
       end do
       
+      
+      cal_temp(1) = production
    !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
       
       
@@ -293,8 +351,8 @@
           agri_adjust = 1.0
         endif
         temp_adjust = (soiltemp * max(0.11, Dopt) * 0.095) + 0.9
-        CH4(j) = CH4max * watr_adjust * temp_adjust * agri_adjust
-  
+        CH4(j) = production*10000. - CH4max * watr_adjust * temp_adjust 
+     &  * agri_adjust
       endif
       return
       end
