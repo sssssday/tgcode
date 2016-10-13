@@ -180,6 +180,7 @@
           xx = 1. - frt_surface                     
         endif
 
+       fnh3n(ifrt) = 0.  !! change according to fertlizer use record
         sol_no3(l,j) = sol_no3(l,j) + xx * frt_kg                    *  
      &      (1. - fnh3n(ifrt)) * fminn(ifrt)
 

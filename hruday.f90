@@ -201,7 +201,8 @@
      real :: sol_nmass
      real :: total_nmass 
      
-     
+     real:: sumorgp 
+     real:: summinp
      
      tot_LSN = 0.
      tot_LMN = 0.
@@ -248,8 +249,8 @@
 
                               dp = sol_z(ly,ihru) - sol_z(ly-1,ihru)
                               if (dp .gt. 0.) then
-                                  wc = sol_st(ly,ihru) + sol_wpmm(ly,ihru)*(dp/(sol_z(ly,ihru)-sol_z(ly-1,ihru)))
-                                  sat = sol_ul(ly,ihru) + sol_wpmm(ly,ihru)*(dp/(sol_z(ly,ihru)-sol_z(ly-1,ihru)))
+                                  wc = (sol_st(ly,ihru) + sol_wpmm(ly,ihru))*(dp/(sol_z(ly,ihru)-sol_z(ly-1,ihru)))
+                                  sat = (sol_ul(ly,ihru) + sol_wpmm(ly,ihru))*(dp/(sol_z(ly,ihru)-sol_z(ly-1,ihru)))
                                   
                                   
                                   sumwater = sumwater + wc * dp
@@ -511,6 +512,8 @@
           tot_pmass = 0. 
           tot_solp = 0.
           tot_no3_nh3 =0.
+          sumorgp = 0.
+          summinp = 0.
           do k=1,sol_nly(j) 
               sol_mass = 0.
               if (k == 1) then
@@ -557,6 +560,12 @@
            tot_solp = tot_solp + sol_solp(k,j)
            
            tot_no3_nh3 = tot_no3_nh3  + sol_no3(k,j) + sol_nh3(k,j)
+           
+  !! Phosphorus summary         
+           sumorgp = sumorgp + sol_fop(k,j) + sol_orgp(k,j)	      
+   
+           summinp = summinp + sol_solp(k,j) + sol_actp(k,j) + sol_stap(k,j)
+    
           end do      
 
 
@@ -567,6 +576,14 @@
                 T_EFS1S3 = 0.0
                 T_EFS2S1 = 0.0
                 
+
+
+
+
+         
+         total_P = summinp + sumorgp + plantp(j)
+     
+
                 
                 
           write (1001,9001) iyr, i_mo, i, j, rsdc_d(j), sedc_d(j), percc_d(j),             &
@@ -584,7 +601,7 @@
         !!    T_CO2FSTR_N,T_CO2FS1,T_CO2FS2,T_CO2FS3,
             nplnt(j),wshd_raino3,absorbed_no3,absorbed_nh3,  &
             no3_loss,sol_rsd(1,j),T_NO3,T_NH3, combined_factor(j),&
-            CH4(j), N2O(j), fixn, plantn(j),(cal_temp(ii), ii = 1, 11)    
+            CH4(j), N2O(j), NO(j), fixn, plantn(j),(cal_temp(ii), ii = 1, 11)    
           end if  
           
 
@@ -598,5 +615,5 @@
 1000  format (a4,i5,1x,a5,a4,i5,1x,i4,1x,i4,e10.5,66f10.3,1x,e10.5,1x,e10.5,8e10.3,2f10.3,1x,i4)
 1001  format (a4,i5,1x,a5,a4,i5,1x,i4,1x,i4,e10.5,66f10.3,1x,e10.5,1x,e10.5,8e10.3,2f10.3)
 9000  format(i4,i4,i2,i8,21(f16.3))
-9001  format(i8,i8,i8,i8,76(f15.8))
+9001  format(i8,i8,i8,i8,77(f15.8))
       end

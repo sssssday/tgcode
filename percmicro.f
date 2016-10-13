@@ -72,10 +72,11 @@
       j = ihru
 
       adjf = 1.
+      
 
       !! if temperature of layer is 0 degrees C or below
       !! there is no water flow
-      if (sol_tmp(ly1,j) <= 0.) then
+      if (sol_tmp(ly1,j) <= -10.) then
         sepday = 0.
         return
       end if

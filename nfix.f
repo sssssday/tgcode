@@ -108,7 +108,7 @@
      !! if (fixn<2./365.)fixn=2./365. !! added by Qichun
 !! summary calculations
       if (fixn > 20./365.) fixn = 20./365.
-      cal_temp(3) = fixn
+     
       if (curyr > nyskip) then
         wshd_fixn = wshd_fixn + fixn * hru_dafr(j)
       end if

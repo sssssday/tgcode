@@ -188,7 +188,7 @@
           par = 0.
           par = .5 * hru_ra(j) * (1. - Exp(-ext_coef(idp) *             
      &          (laiday(j) + .05)))
-          print*, "radiation =", hru_ra(j)
+        
 
           !! adjust radiation-use efficiency for CO2
           beadj = 0.
@@ -231,9 +231,14 @@
             if (auto_nstrs(j) > 0.) call anfert
           end select
 
+         call pweather
+
+
           !! reduce predicted biomass due to stress on plant
           reg = 0.
           reg = Min(strsw(j), strstmp(j), strsn(j), strsp(j), strsa(j))
+          !!reg = Min (strsw(j), strstmp(j), strsn(j), strsa(j))
+          
           if (reg < 0.) reg = 0.
           if (reg > 1.) reg = 1.
 

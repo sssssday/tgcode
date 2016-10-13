@@ -188,7 +188,7 @@
         end if
       end if
       !added by zhang for debug
-      hiad1 = hvsti(idp) 
+    !  hiad1 = hvsti(idp) 
 
 !! check if yield is from above or below ground
       yield = 0.

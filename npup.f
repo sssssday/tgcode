@@ -105,6 +105,7 @@
       up2 = 0.
       uapd = 0.
       up2 = pltfr_p(j) * bio_ms(j)
+     
       if (up2 < plantp(j)) up2 = plantp(j)
       uapd = up2 - plantp(j)
       !uapd = Min(4. * pltpfr(3,icrop) * bioday, uapd)
@@ -115,28 +116,29 @@
       if (uapd < 1.e-6) return
       
         !!  qichun calculate P weathering _______________________________
-      wethp = pweather()*10 !! from g/m2 to kg/ha   
-      
-        sdth = 0.
-        xx = 0.
+   !!   wethp = pweather()*10 !! from g/m2 to kg/ha   
+     !! wethp = 0.
+
+  !!      sdth = 0.
+  !!      xx = 0.
     !! calculate soil depth
      
-      sdth = sol_z(sol_nly(j),j)
+ !!     sdth = sol_z(sol_nly(j),j)
 
     !! depth weighted calculation to add newly produced p to each layer 
       
       
-      do k = 1, sol_nly(j)
-      	if (k == 1) then
-	    xx = sol_z(k,j)
-	else	
-	    xx = sol_z(k,j) - sol_z(k-1,j)
-	end if
-       
-          sol_solp(k,j) = sol_solp(k,j) + wethp * xx / sdth 
+ !!     do k = 1, sol_nly(j)
+ !!     	if (k == 1) then
+!!	    xx = sol_z(k,j)
+!!	else	
+!!	    xx = sol_z(k,j) - sol_z(k-1,j)
+!!	end if
+!!       
+!!          sol_solp(k,j) = sol_solp(k,j) + wethp * xx / sdth 
     !!      sol_solp(k,j) = sol_solp(k,j)+ 10.
     
-      end do
+ !!     end do
       
       
       !!  _______________________________________________________________ 
@@ -166,7 +168,7 @@
 
 !! compute phosphorus stress
       call nuts(plantp(j), up2, strsp(j))
-!! improve P stress calculation according to N. Qichun      
+!!improve P stress calculation according to N. Qichun      
       if (uapd > 1.e-5) then
             xx = pplnt(j) / uapd 
           else
@@ -179,6 +181,9 @@
         strsp(j) = amin1(strsp(j), 1.) 
  !!~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~        
 
+
+
+
 !! summary calculations
       if (curyr > nyskip) then
         wshd_pup = wshd_pup + pplnt(j) * hru_dafr(j)
@@ -187,68 +192,4 @@
       return
       end
       
-      !!  qichun - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-       function pweather()
-        use parm
-          
-        integer :: k,j
-        real :: pweather
-        real :: soilw, sfc, swp, wadj, normalizer
-        real :: stem, wteff, fwater, ftem, teff, rwater
-        real :: parentp, pfine
-        real :: clay, silt
-        
-        j = 0
-        j = ihru
-        k=0
-        
-        silt = 0.
-        clay = 0.
-        stem = 0.
-        parentp = 10.
-        wadj = 0.1
-
-        do k = 1, sol_nly(j)
-        silt = silt + sol_silt(k,j)
-        clay = clay + sol_clay(k,j)
-       !! stem = stem + sol_tmp(l,j) 
-   
-        end do
-        
-        silt = silt / sol_nly(j)
-        clay = clay / sol_nly(j)
-        stem = sol_tmp(1,j) !! use surface temperature
-        
-        soilw = sol_sw (j)
-        sfc=sol_sumfc(j)
-        swp=sol_sumwp(j)
-        pfine= (silt+clay)/100.0
-        normalizer = 11.75+(29.7/3.14)*tan(3.14*0.031*(30-15.4))
-
-       if (sfc>swp)rwater = (soilw-swp)/(sfc-swp)
-       
-       if (rwater<0.001)rwater=0.001
-       if (rwater>1000.)rwater=1000.
-       if (rwater > 13.)  then
-          fwater = 13.
-       else
-          fwater = 1/(1+10.*exp(-6.*rwater))
-       endif   
-
-       ftem = max((11.75+(29.7/3.14)*tan(3.14*0.031*(stem-15.4)))
-     &  /normalizer, 0.01)
-
- 
-
-       teff= (0.1+(0.1/3.14)*tan(6.28*(pfine-0.7)))
-
-
-
-
-        pweather = parentp*teff*ftem*fwater/365.0
-        
-      if (pweather<0) pweather=0.
-
-      end function
-
-!!  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+     
