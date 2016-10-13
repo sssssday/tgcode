@@ -135,7 +135,8 @@
           
           inum3sprev = 0
           do k = 1, nhru
-            subp(k) = rmeas(irgage(hru_sub(k)))
+            subp(k) = rmeas(irgage(hru_sub(k)))*0.8 !!qichun change rainfall here
+           
             !! generate data to replace missing values
            !! print*, subp(k)
             if (subp(k) < -97.) then

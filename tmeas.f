@@ -99,7 +99,7 @@
         inum3sprev = 0
         do k = 1, nhru
           call weatgn(k)
-          tmx(k) = txmeas(itgage(hru_sub(k)))
+          tmx(k) = txmeas(itgage(hru_sub(k))) !! change temperature here
           tmn(k) = tnmeas(itgage(hru_sub(k)))
           !! generate values to replace missing data
           if (tmx(k) <  -97. .or. tmn(k) < -97. .or.                    

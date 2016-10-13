@@ -1806,6 +1806,7 @@
             !! qichun variable for GHG
        allocate (CH4(mhru))
        allocate (N2O(mhru))
+       allocate (NO(mhru))
 
       	  
       call zero0

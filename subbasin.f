@@ -144,7 +144,8 @@
 
       j = 0
       j = ihru
-
+      canopy_red = 0.
+      no_adsorb = 0.
 
       !!by zhang DSSAT tillage
       !!======================
@@ -330,12 +331,7 @@
 	end if
 	
 	
-	
-	        
-     
        
-       
-               
 	
 	
 	
@@ -349,12 +345,9 @@
 
 	
 	
-
-	
-
-        call nitvol
+      call nitvol
         
-        
+  
 
         
         if (sol_P_model == 1) then
@@ -737,7 +730,7 @@
             !! print*, "Total N  = ", totalN 
   !!            
   !!            TN2 = totalN 
-  !!            cal_temp(1) = TN2-TN1
+  !!            
 
    !!         if (TN1.ne.TN2) print*, " nitorgen is changed"  
    !!  =  = = =  =  = =  = = = = = = =  = = = = =  = = = =  = = = = = =  ==    

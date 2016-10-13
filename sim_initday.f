@@ -254,6 +254,7 @@
       !! Qichun
       CH4 = 0.
       N2O = 0.
+      NO = 0.
       cal_temp =0.
       
       return

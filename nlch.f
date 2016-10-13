@@ -152,7 +152,7 @@
       !! calculate nitrate leaching from soil profile
       percn(j) = percnlyr
 
-      !! cal_temp(2) = latno3(j)+ percn(j) + tileno3(j) + surqno3(j) 
+   
 
       nloss = (2.18 * dis_stream(j) - 8.63) / 100.
       nloss = amax1(0.,nloss)

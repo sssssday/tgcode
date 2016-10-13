@@ -536,7 +536,8 @@
       
       !! qichun GHG
       CH4 = 0.
-      N2O = 0.      
+      N2O = 0.   
+      NO = 0.    
       combined_factor = 0. 
       temp_factor = 0. 
       water_factor = 0. 

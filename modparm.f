@@ -910,6 +910,7 @@
 !!   qichun add variables for GHG simulations
       real,dimension (:), allocatable :: CH4
       real,dimension (:), allocatable :: N2O
+      real,dimension (:), allocatable :: NO
       real, dimension(:), allocatable :: combined_factor
       real, dimension(:), allocatable :: temp_factor
       real, dimension(:), allocatable :: water_factor

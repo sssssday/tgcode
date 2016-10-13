@@ -105,8 +105,7 @@
       end if
       
       
-      !!cal_temp(7) = sedorgn(j)
-
+    
 	!! update soil nitrogen pools only for HRU calculations
       if (iwave <= 0 .and. xx > 1.e-6) then
         xx1 = (1. - sedorgn(j) / xx)

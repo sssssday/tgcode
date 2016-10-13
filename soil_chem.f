@@ -363,9 +363,9 @@
         IF(FHP<1.E-10)FHP=.7-.4*EXP(-.0277*100) 
         FHS = 1 - FBM - FHP
         !From DSSAT
-        !FBM = 0.02
-        !FHS = 0.54
-        !FHP = 0.44
+        FBM = 0.02
+        FHS = 0.54
+        FHP = 0.44
 				
 		!NCC = 0
         !IF(NCC==0)THEN

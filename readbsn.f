@@ -729,7 +729,7 @@
    !!  & 'CO2FSTR_N','CO2FS1','CO2FS2','CO2FS3', 
      & 'uptakeno3','rainno3',
      & 'absorbed_no3','absorbed_nh3','NO3loss','sol_rsd','NO3','NH3',
-     & 'C_factor', 'CH4', 'N2O', 'fixn', 'plantn',
+     & 'C_factor', 'CH4', 'N2O', 'NO', 'fixn', 'plantn',
      &'cal_temp1','cal_temp2','cal_temp3','cal_temp4','cal_temp5',
      &'cal_temp6','cal_temp7','cal_temp8','cal_temp9','cal_temp10',
      &'cal_temp11'    
@@ -747,5 +747,5 @@
  1001 format (i4)
  5102 format (3a5,30a15)
  
- 5104 format (a8,a8,a8,a8,76a15)
+ 5104 format (a8,a8,a8,a8,77a15)
       end

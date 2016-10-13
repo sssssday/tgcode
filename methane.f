@@ -183,8 +183,7 @@
           END IF
         
         total_doc = X3/10. !From Kg/ha C ot g/m2 C !DOM.C()
-         if (lyr == 1)cal_temp(2) = 0.
-        cal_temp(2) =  cal_temp(2) + total_doc
+
         total_doc_top = total_doc * 0.8  
         avDOC = total_doc_top
         fdoc = avDOC/(avDOC+ 1.)!! pftp[ecotype].Kmch4pro)
@@ -226,6 +225,8 @@
               END IF             
               sut = min(1., sut)
               sut = max(.05, sut)
+              
+             !  fmoist_prod = sut
        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             
          if (lyr == 1)production = 0.
@@ -233,13 +234,7 @@
         production = production + min(0.4            !!pftp[ecotype].CH4ProMaxRate 
      &   * fdoc * ftemp* fpH * fmoist_prod, avDOC)
      & * sol_thick/1000.    !!(gC/m3 soil)  
-        
-        cal_temp(3) =  fdoc 
-        cal_temp(4) =  ftemp
-        cal_temp(5) =  fmoist_prod
-        cal_temp(6) = precipday
-        cal_temp(7) = es_day
-        
+
         
         
         
@@ -248,7 +243,7 @@
       end do
       
       
-      cal_temp(1) = production
+     
    !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
       
       

@@ -943,7 +943,7 @@
    
     call methane
    
-      cal_temp(10) = totalN
+      
    
    
    

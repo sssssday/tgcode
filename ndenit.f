@@ -4,6 +4,7 @@
 	use parm
 	implicit none
 	integer :: k,j
+	integer aaa
 	real :: cdg, wdn, void, respc, no2prod
 	real :: fDco2
 	
@@ -50,25 +51,43 @@
       real :: PARTDENS
       real :: sol_thick
       real :: vof
-	real :: tt1, tt2
+	  real :: tt1, tt2
+	  real :: no_n2o_ratio
+	  real :: tem_no
+      real :: krain_no  !! rain impacts on n2o emission
+      real :: ttem_no
+      real :: dDO
+      real :: swcfrac_dDO 
+      real :: porespace_dDO
+      real :: wfpslyr_dDO
+        
 	
-	min_nitrate = 0.1
+	no_n2o_ratio = 0.
+	
+	  min_nitrate = 0.1
       min_nitrate_end = 0.05
-	ug_per_gram = 1.0E6
+	  ug_per_gram = 1.0E6
       grams_per_ug = 1.0E-6
-	CM_per_METER = 100.0
-	Dn2oflux = 0.0
+	  CM_per_METER = 100.0
+	  Dn2oflux = 0.0
       Dn2flux = 0.0
       wfpslyr = 0.0 
       swcfrac = 0.0
       porespace = 0.0
-      wfpsdnitadj = 1.5
+      wfpsdnitadj = 1.1 !! initial is 1.18
       M_PI = 3.1415926536
       PARTDENS = 2.56
       sol_thick = 0.
+      tem_no = 0.
+      krain_no  = 0.
+      ttem_no = 0.
+      swcfrac_dDO = 0. 
+      porespace_dDO = 0.
+      wfpslyr_dDO = 0.
       
       	if (k == 1) then
 	    sol_thick = sol_z(k,j)
+	    cal_temp(1) = 0
 	    
 	else	
 	    sol_thick = sol_z(k,j) - sol_z(k-1,j)
@@ -78,7 +97,7 @@
 	
 	swcfrac = (sol_fc(k, j)+sol_wpmm(k,j)) / sol_thick
       porespace = 1.0 - sol_bd(k,j)/PARTDENS !! orginal unit for bulk density is g/cm3 in daycent. check if SWAT variable match this value
-      wfpslyr = swcfrac/porespace
+      wfpslyr = (sol_st(k, j)+sol_wpmm(k,j)) / sol_thick/porespace
       
 	
 	grams_soil = sol_bd(k,j) * sol_thick*0.1 *
@@ -86,11 +105,11 @@
 	
 	nitratePPM = sol_no3(k,j)*0.1/grams_soil*ug_per_gram
 	
-	 if (nitratePPM< min_nitrate) go to 999   !! check if this function correctly
+	 if (nitratePPM < min_nitrate) go to 999   !! check if this function correctly
 	rtfr(k) = 1./sol_nly(j) !! change later
 	co2PPM =  respc*0.1 / grams_soil * ug_per_gram
                        
-      co2PPM = co2PPM + 380.  !! need to double check.
+      co2PPM = co2PPM + 380   !! need to double check.
       
         dD0_fc = diffusiv(swcfrac, sol_bd(k,j),
      &                          wfpslyr)
@@ -140,14 +159,19 @@
 
         x_inflection = (9.0 - M * co2_correction)
         x_inflection = x_inflection * wfpsdnitadj
+        
 
         fDwfps = (0.45 +(atan(0.6*M_PI*(10.0*wfpslyr -
      &                      x_inflection))) / M_PI)
+     
+       
         fDwfps = max(0.0, fDwfps) !! change later
         
         Dtotflux = min(fDno3 , fDco2)
-        cal_temp(4) = fDno3
-        cal_temp(5) = fDco2
+   
+
+
+
 
         if (k<3) then !! in daycent it is k<2, but may start from 0, so change to 3 here
           Dtotflux = max(0.066, Dtotflux)
@@ -155,8 +179,8 @@
         endif
         
         Dtotflux = Dtotflux * fDwfps
-
         
+         
         if (sol_st(k,j)> sol_fc(k,j)) then
            
            Rn2n2o = 100.0
@@ -175,40 +199,85 @@
 
 	vof = 1. / (1. + (void/0.04)**5)
 	!!
-	!! ntotflux= 0.1 * sol_no3(k,j) * 
-      !!  &	(1. - Exp(-cdn (j) * cdg * vof *sol_cbn(k,j) ))  !! convert kg/ha to g/m2
+	 ntotflux= 0.1 * sol_no3(k,j) * 
+     &	(1. - Exp(-cdn (j) * cdg * vof *sol_cbn(k,j) ))  !! convert kg/ha to g/m2
      
+      
+           
       ntotflux = Dtotflux * grams_soil * grams_per_ug
-     
+      
+
+         
 	n2oflux = ntotflux / (Rn2n2o + 1.0)
 	
-	
-	
-	cal_temp(3) = Rn2n2o
+       cal_temp(3) = n2oflux
+  !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !! calculated NO from N2O
+      aaa = 4
+      if (aaa>3) then
+    
+       swcfrac_dDO = (sol_fc(1, j)+sol_wpmm(1,j)) / sol_z(1,j) 
+       porespace_dDO = 1.0 - sol_bd(1,j)/2.56    
+       wfpslyr_dDO = swcfrac_dDO/porespace_dDO
+       dDO =  diffusiv(swcfrac_dDO, sol_bd(1,j), wfpslyr_dDO)
+       !!dDO = 0.
+       krain_no = 1.0
+      no_n2o_ratio = 8.0 + (18.0*atan(0.75*3.1415926*(10.*dDO-1.86)))
+     &    /3.1415926   
+     
+         if (idplt(j) == 4) no_n2o_ratio = no_n2o_ratio* 0.5
+         
+        tem_no = no_n2o_ratio * n2oflux  * krain_no 
+        !!tem_no = 0.
+        if (tem_no .le. sol_nh3(k,j)*0.1) then
+        
+            sol_nh3(k,j) = sol_nh3(k,j) - tem_no*10. 
+                
+        else
+            
+            ttem_no = tem_no - sol_nh3(k,j)*0.1
+            
+            if (ttem_no .le. n2oflux ) then
+            
+                n2oflux = n2oflux - ttem_no 
+                
+                tem_no = ttem_no +  sol_nh3(k,j) * 0.1
+
+               sol_nh3(k,j) = 0.0
+               
+            else
+               tem_no = min (tem_no, sol_nh3(k,j)*0.1 + n2oflux )
+
+               sol_nh3(k,j) = 0.0
+               n2oflux = 0.
+            
+            end if   
+            
+        endif    
+       endif         
+  !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       
+           
 
       !! print*, 
+      cal_temp(1) = cal_temp(1) + n2oflux
 	
-	N2O(j) = N2O(j) + n2oflux
+	if (tem_no .le. 1E-30)tem_no = 0.
+	  NO(j) = NO(j) + tem_no
+	
+	if (n2oflux .le. 1E-30)n2oflux = 0.
+	  N2O(j) = N2O(j) + n2oflux
      
-      if (k==1)cal_temp(1) = 0. 
-        cal_temp(1) = cal_temp(1) + n2oflux
-        
-        
+
 		
       wdn = ntotflux*10.0 
       !! print*, "wdn=", wdn
 	!!vof = 1. / (1. + (void/0.04)**5)
 	!!wdn = sol_no3(k,j) * (1. - Exp(-cdn * cdg * vof * sol_cbn(k,j))) !! temporalily closed by QIchun
 	!! denitrification from Daycent
-	
-			
+				
 	if(wdn < 0.) wdn = 0. !! added by qichun
 	
 	sol_no3(k,j) = sol_no3(k,j) - wdn
-	
-	
-	
-	
 	
 	
 999	return
